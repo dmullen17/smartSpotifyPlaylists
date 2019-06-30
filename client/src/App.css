@@ -1,0 +1,219 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap');
+
+/* =============================================================== */
+/*                      Global Variables                           */
+/* =============================================================== */
+:root {
+    --light-grey: #dee2e6;
+    --base-green: #1DB94E;
+    --light-green: #1ED760;
+    --songs-text: black;
+    --songs-background: white;
+}
+
+/* =============================================================== */
+/*                      General CSS Rules                          */
+/* =============================================================== */
+body {
+    font-family: Roboto, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: white;
+}
+
+a {
+    text-decoration: none;
+    color: white;
+}
+
+a:visited {
+    text-decoration: none;
+}
+
+/* =============================================================== */
+/*                      Main App Component                         */
+/* =============================================================== */
+.App {
+  text-align: center;
+}
+
+
+/* =============================================================== */
+/*                      Login Component                            */
+/* =============================================================== */
+.Login {
+    background: linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, .1) 100%), linear-gradient(to right, #C074B2, #8AB5E8);
+    margin: 0;
+    padding: 0;
+}
+
+.Login-container {
+    margin-top: 10vh;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    font-size: 25px;
+    font-weight: 500;
+}
+
+.Login-button {
+    margin: 20px;
+    padding: 15px 45px;
+    border-radius: 30px;
+    background: var(--base-green);
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    transition: all .3s;
+}
+
+.Login-button:hover {
+    background: var(--light-green);
+    color: white;
+}
+
+.Login a {
+    text-decoration: none;
+}
+
+.Login h1 {
+    margin: 0;
+}
+
+.display-none {
+    display: none;
+}
+
+.display-fullScreen {
+    height: 100vh;
+    width: 100vw;
+}
+
+
+/* =============================================================== */
+/*                      Navigation Bar Component                   */
+/* =============================================================== */
+.Navbar {
+    width: 100%;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.Navbar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 30px;
+    overflow: hidden;
+}
+
+.Navbar ul li {
+    padding: 15px;
+    float: left;
+    margin: 0;
+}
+
+.Navbar ul li a:hover {
+    color: #2D46B9;
+    text-decoration: none;
+}
+
+
+/* =============================================================== */
+/*                      Home Page Component                        */
+/* =============================================================== */
+.homepage {
+    background: linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, .1) 100%), linear-gradient(to right, #C074B2, #8AB5E8);
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+}
+
+/* Delete this when finished developing */
+.temporaryNav {
+    display: flex;
+    flex-direction: row;
+    height: 20vh;
+}
+
+
+/* =============================================================== */
+/*          Playlists, Playlist, and Songs Components              */
+/* =============================================================== */
+.playlistsContainer {
+    margin-right: 7.5vw;
+    margin-left: 7.5vw;
+    position: absolute;
+    bottom: 0;
+    right: 0; 
+    left: 0;
+}
+
+.playLists {
+    overflow-x: scroll;
+    flex-wrap: nowrap;
+}
+
+/* ul container for <Songs> elements*/
+.playlist {
+    list-style-type: none;
+    overflow-y: scroll;
+    max-height: 70vh;
+    min-height: 70vh;
+    padding: 0;
+    margin: 0;
+    background: var(--songs-background);
+    border-right: 1px solid var(--light-grey);
+    border-left: 1px solid var(--light-grey);
+}
+
+.songsUlContainer {
+    list-style-type: none;  
+    padding: 0;
+    white-space: nowrap;
+    text-align: left;
+}
+
+.songsUlContainer li {
+    display: inline-block;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 8px;
+    color: var(--songs-text);
+    border-bottom: 1px solid var(--light-grey);
+    overflow-x: hidden;
+}
+
+.songsUlContainer li:first-child {width: 33%;}
+.songsUlContainer li:nth-child(2) {width: 20%;}
+.songsUlContainer li:nth-child(3) {width: 20%;}
+.songsUlContainer li:nth-child(4) {width: 17%;}
+.songsUlContainer li:nth-child(5) {width: 10%;}
+
+
+.addPlaylistButton {
+    margin: 20px;
+    padding: 15px 30px;
+    border-radius: 30px;
+    background: var(--base-green);
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    transition: all .3s;
+    max-width: 325px;
+}
+
+.addPlaylistButton:hover {
+    background: var(--light-green);
+    color: white;
+    cursor: pointer;
+}
+
+
+
+
+
+
+
+
