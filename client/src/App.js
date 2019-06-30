@@ -262,7 +262,7 @@ getTracks(playlistId) {
         <Login loggedIn={this.state.loggedIn}/>
         <div className={(this.state.loggedIn) ? 'homepage display-fullScreen' : 'homepage display-none'}> 
             <Navbar />
-            <Playlists loggedIn={this.state.loggedIn} playlists={this.state.playlists}/>
+            <Playlists loggedIn={this.state.loggedIn} playlists={this.state.playlists} active = {(this.state.playlists.length > 0 ? true : false)}/>
         </div>
         <div className='temporaryNav'>
             <button onClick={this.getUserPlaylists}>Get Playlists</button><br/>
@@ -311,7 +311,7 @@ const Navbar = () => {
 class Playlists extends React.Component {
     // Try to get playlist names from localStorage - delete this in app production later.
     constructor(props) {
-        super(props);
+        super(props);   
         this.state = {
             selectedPlaylistName: '',
             userId: ''
@@ -348,7 +348,7 @@ class Playlists extends React.Component {
         playlistTabs = this.props.playlists.map(playlist => <Tab title={playlist.name} eventKey={playlist.name}><Playlist songs={playlist.songs}/></Tab>);
         return (
             <div className='playlistsContainer'>
-                <div className='addPlaylistButton' onClick={this.addPlaylistToLibrary}>Add playlist to library</div>
+                <div className= {(this.props.active) ? 'addPlaylistButton' : 'addPlaylistButton display-none'} onClick={this.addPlaylistToLibrary}>Add playlist to library</div>
                 <TabContainer>
                     <Tabs className='playLists' onSelect={this.updateSelectedPlaylist}>
                         {playlistTabs}
