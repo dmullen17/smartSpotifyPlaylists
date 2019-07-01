@@ -279,7 +279,7 @@ getTracks(playlistId) {
         this.getUserPlaylists();
         this.getUserSavedTracks();
         setTimeout(() => {this.getTracks()}, 1000);
-        setTimeout(() => {this.sortSongsByDate()}, 2000);
+        setTimeout(() => {this.sortSongsByDate()}, 2500);
         setTimeout(() => {this.createPlaylists()}, 3000);
     }
 /*    testPromise() {
@@ -363,9 +363,13 @@ class Playlists extends React.Component {
         // Create the playlist 
         spotifyApi.createPlaylist(userId, {name: selectedPlaylistName})
             .then((res) => {
-                const playlistId = res.id
-                spotifyApi.addTracksToPlaylist(playlistId, songURIs)
-                    .then((res) => console.log(res));
+                const playlistId = res.id;
+                let offset = 0;
+                const iterations = Math.ceil(songURIs.length / 100);
+                for (let i=1; i<=iterations; i++) {
+                    spotifyApi.addTracksToPlaylist(playlistId, songURIs.slice(0 + offset, 100 + offset));
+                    offset += 100;
+                }
         });
     }
     /* REmove this and pass it down as props from App class */
