@@ -19,10 +19,17 @@ function msToTime(duration) {
 
 function utcTimeToHumanReadable(utcTime) {
     const date = new Date(utcTime);
-    let [year, month, day] = [date.getUTCFullYear(), date.getUTCMonth()+1, date.getUTCDay()];
+    let [year, month, day] = [date.getUTCFullYear(), date.getUTCMonth()+1, date.getUTCDate()];
     month = (month < 10) ? "0" + month : month;
     day = (day < 10) ? "0" + day : day;
     return `${year}-${month}-${day}`;
+}
+
+// prop1 is 'track' and prop2 is 'uri'
+function removeDuplicates(myArr, prop1, prop2) {
+    return myArr.filter((obj, pos, arr) => {
+        return arr.map(mapObj => mapObj[prop1][prop2]).indexOf(obj[prop1][prop2]) === pos;
+    });
 }
 
 class App extends React.Component {
@@ -50,6 +57,8 @@ class App extends React.Component {
       this.sortSongsByDate = this.sortSongsByDate.bind(this);
       this.createPlaylists = this.createPlaylists.bind(this);
       this.getPlayListSongsByQuery = this.getPlayListSongsByQuery.bind(this);
+      this.getAllPlaylistsOnComponentMount = this.getAllPlaylistsOnComponentMount.bind(this);
+
   }
     componentDidMount() {
         spotifyApi.getMe().then((res) => {
@@ -68,24 +77,26 @@ class App extends React.Component {
     return hashParams;
   }
     async getUserPlaylists() {
-        try {
-            let offset = 0;
-            let ids;
-            let newRes; 
-            let userName = this.state.name;
-            let playlistIds = [];
-            do {
-                newRes = await spotifyApi.getUserPlaylists({offset: offset, limit: 50});
-                console.log(newRes);
-                offset += 50;
-                console.log(newRes);
-                ids = newRes.items.filter(playlist => playlist.owner.display_name === userName).map(playlist => { return {id: playlist.id, length: playlist.tracks.total}});
-                playlistIds = [...playlistIds, ...ids];
-            } while(newRes.next);
-            this.setState({playlistIds: playlistIds});
-        } catch (err) {
-            console.log(err);
-        } 
+            try {
+                let offset = 0;
+                let ids;
+                let newRes; 
+                let userName = this.state.name;
+                let playlistIds = [];
+                do {
+                    newRes = await spotifyApi.getUserPlaylists({offset: offset, limit: 50});
+                    console.log(newRes);
+                    offset += 50;
+                    console.log(newRes);
+                    ids = newRes.items.filter(playlist => playlist.owner.display_name === userName).map(playlist => { return {id: playlist.id, length: playlist.tracks.total}});
+                    playlistIds = [...playlistIds, ...ids];
+                } while(newRes.next);
+                this.setState({playlistIds: playlistIds});
+                return 'success';
+            } catch (err) {
+                console.log(err);
+            }
+        return 'failure';
     }
     async getPlaylistSongs(playlistId) {
         try {
@@ -114,6 +125,9 @@ class App extends React.Component {
             console.log(err.headers);*/
         }
     }
+    getTracks () {
+        this.state.playlistIds.map(playlist => this.getPlaylistSongs(playlist.id));
+    }
     
     getPlayListSongsByQuery() {
         // Create a query parameters object
@@ -139,9 +153,6 @@ class App extends React.Component {
         });
         this.setState({songs: [...songs, ...this.state.songs]});
     }*/
-    getTracks () {
-        this.state.playlistIds.map(playlist => this.getPlaylistSongs(playlist.id));
-    }
     async getUserSavedTracks() {
       try {
             let offset = 0;
@@ -216,7 +227,13 @@ class App extends React.Component {
                 }
             });
         });
-        playlists = playlists.filter(playlist => playlist.songs.length >0);
+        
+        // Filter out zero length playlists and remove duplicate songs
+        playlists = playlists.filter(playlist => playlist.songs.length > 0);
+        playlists.forEach(playlist => {
+            playlist.songs = removeDuplicates(playlist.songs, 'track', 'uri');
+        });
+        
         this.setState({playlists: playlists});
         // Save to localStorage
         const playlistNames = playlists.map(playlist => playlist.name);
@@ -256,6 +273,20 @@ getTracks(playlistId) {
             });
      }
     }*/
+    async getAllPlaylistsOnComponentMount() {
+        // this is way too hacky - refactor to use promises
+        // leaving this here so i can demonstrate how the app works 
+        this.getUserPlaylists();
+        this.getUserSavedTracks();
+        setTimeout(() => {this.getTracks()}, 1000);
+        setTimeout(() => {this.sortSongsByDate()}, 2000);
+        setTimeout(() => {this.createPlaylists()}, 3000);
+    }
+/*    testPromise() {
+        let newRes = spotifyApi.getUserPlaylists({offset: offset, limit: 50});
+        ids = newRes.items.filter(playlist => playlist.owner.display_name === userName).map(playlist => { return {id: playlist.id, length: playlist.tracks.total}});
+                    playlistIds = [...playlistIds, ...ids];
+    }*/
   render() {
     return (
       <div className="App">
@@ -266,12 +297,15 @@ getTracks(playlistId) {
         </div>
         <div className='temporaryNav'>
             <button onClick={this.getUserPlaylists}>Get Playlists</button><br/>
+            <button onClick={this.getUserPlaylistsConsumePromise}>Get Playlists Promise</button><br/>
             <button onClick={this.getTracks}>Get Tracks</button><br/>
+            <button onClick={this.testPromise}>testPromise</button><br/>
             <button onClick={this.getPlayListSongsByQuery}>Get Tracks Manual Queries</button><br/>
             <button onClick={this.getUserSavedTracks}>Get Saved Tracks</button><br/>
             <button onClick={this.sortSongsByDate}>Sort Songs</button><br/>
             <button onClick={this.logState}>Log State</button><br/>
             <button onClick={this.createPlaylists}>Create playlists</button><br/>
+            <button onClick={this.getAllPlaylistsOnComponentMount}>getAllPlaylistsOnComponentMount</button><br/>
         </div>
     </div>
     );
@@ -347,7 +381,12 @@ class Playlists extends React.Component {
         playlistTabs = <Tab title={playlist.name} eventKey={playlist.name}><Playlist songs={playlist.songs}/></Tab>*/
         playlistTabs = this.props.playlists.map(playlist => <Tab title={playlist.name} eventKey={playlist.name}><Playlist songs={playlist.songs}/></Tab>);
         return (
-            <div className='playlistsContainer'>
+            <div className='createPlaylistsContainer'>
+                <div className={ (this.props.active) ? 'Login-container display-none' : 'Login-container'}>
+                    <h1>Smarter Playlists</h1>
+                    <div style={{'maxWidth': '60vw'}}>This app retrieves all the songs in your playlists and saved tracks.  It then sorts them into 3-month aggregate playlists. Now you always have a playlist of all your new music!</div>
+                    <div className='Login-button'>Create smart playlists</div>
+                </div>
                 <div className= {(this.props.active) ? 'addPlaylistButton' : 'addPlaylistButton display-none'} onClick={this.addPlaylistToLibrary}>Add playlist to library</div>
                 <TabContainer>
                     <Tabs className='playLists' onSelect={this.updateSelectedPlaylist}>

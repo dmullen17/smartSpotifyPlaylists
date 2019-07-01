@@ -12,6 +12,18 @@
 }
 
 /* =============================================================== */
+/*                      Color Schemes                              */
+/* =============================================================== */
+/* Scheme 1 */
+/*
+linear-gradient(to right, #C074B2, #8AB5E8);
+*/
+/* Scheme 2 */
+/*
+linear-gradient(#F037A5 -20%, #4001F5 130%);
+*/
+
+/* =============================================================== */
 /*                      General CSS Rules                          */
 /* =============================================================== */
 body {
@@ -42,7 +54,9 @@ a:visited {
 /*                      Login Component                            */
 /* =============================================================== */
 .Login {
-    background: linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, .1) 100%), linear-gradient(to right, #C074B2, #8AB5E8);
+    background: url(https://campaigns.scdn.co/images/top-hero-left.png) left bottom no-repeat,
+                url(https://campaigns.scdn.co/images/top-hero-right.png) right bottom no-repeat,
+                rgb(80, 55, 80);
     margin: 0;
     padding: 0;
 }
@@ -85,7 +99,7 @@ a:visited {
 }
 
 .display-fullScreen {
-    height: 100vh;
+    height: 600px;
     width: 100vw;
 }
 
@@ -122,8 +136,9 @@ a:visited {
 /*                      Home Page Component                        */
 /* =============================================================== */
 .homepage {
-    background: linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, .1) 100%), linear-gradient(to right, #C074B2, #8AB5E8);
-    margin: 0;
+    background: url(https://campaigns.scdn.co/images/top-hero-left.png) left bottom no-repeat,
+                url(https://campaigns.scdn.co/images/top-hero-right.png) right bottom no-repeat,
+                rgb(80, 55, 80);    margin: 0;
     padding: 0;
     height: 100vh;
     width: 100vw;
@@ -159,8 +174,8 @@ a:visited {
 .playlist {
     list-style-type: none;
     overflow-y: scroll;
-    max-height: 70vh;
-    min-height: 70vh;
+    max-height: 63vh;
+    min-height: 63vh;
     padding: 0;
     margin: 0;
     background: var(--songs-background);
@@ -194,6 +209,7 @@ a:visited {
 
 .addPlaylistButton {
     margin: 20px;
+    margin-bottom: 50px;   
     padding: 15px 30px;
     border-radius: 30px;
     background: var(--base-green);
@@ -208,6 +224,13 @@ a:visited {
     background: var(--light-green);
     color: white;
     cursor: pointer;
+}
+
+
+.createPlaylistsContainer {
+    margin-right: 7.5vw;
+    margin-left: 7.5vw;
+    height: 60vh;
 }
 
 
