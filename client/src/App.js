@@ -2,8 +2,13 @@ import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css'; // import this second so it overwrites some bootstrap defaults 
 import SpotifyWebApi from 'spotify-web-api-js';
-import {Tab, Tabs, TabContainer} from 'react-bootstrap';
+import {Row, Col, Tab, Tabs, TabContainer} from 'react-bootstrap';
 import { ReactComponent as LogoSvg } from './logo1.svg';
+import LogoNodejs from 'react-ionicons/lib/LogoNodejs';
+import MdMusicalNotes from 'react-ionicons/lib/MdMusicalNotes';
+import MdRewind from 'react-ionicons/lib/MdRewind';
+import MdColorWand from 'react-ionicons/lib/MdColorWand';
+import MdAdd from 'react-ionicons/lib/MdAdd';
 const spotifyApi = new SpotifyWebApi();
 
 
@@ -46,7 +51,6 @@ class App extends React.Component {
           name: '',
           userId: '',
           playlistIds: '',
-          playlistData: [],
           songs: [],
           playlists: [],
       }
@@ -62,9 +66,13 @@ class App extends React.Component {
   }
     componentDidMount() {
         spotifyApi.getMe().then((res) => {
-            console.log(res);
-            this.setState({name: res.display_name, userId: res.id})});
+            this.setState({name: res.display_name, userId: res.id});
+            if (this.state.loggedIn) {
+                this.getAllPlaylistsOnComponentMount();
+            }
+        });
     }
+   
     getHashParams() {
     var hashParams = {};
     var e, r = /([^&;=]+)=?([^&;]*)/g,
@@ -214,6 +222,8 @@ class App extends React.Component {
     return result;
     }
     createPlaylists() {
+        // If not token then redirect to login screen
+        if (!this.state.loggedIn) window.location.replace('http://localhost:3000');
         let playlists = this.createResponseObject(this.state.songs[0].added_at,
                                                   this.state.songs[this.state.songs.length - 1].added_at);
         const songs = this.state.songs; 
@@ -278,9 +288,9 @@ getTracks(playlistId) {
         // leaving this here so i can demonstrate how the app works 
         this.getUserPlaylists();
         this.getUserSavedTracks();
-        setTimeout(() => {this.getTracks()}, 1000);
-        setTimeout(() => {this.sortSongsByDate()}, 2500);
-        setTimeout(() => {this.createPlaylists()}, 3000);
+        setTimeout(() => {this.getTracks()}, 2000);
+        setTimeout(() => {this.sortSongsByDate()}, 3500);
+        //setTimeout(() => {this.createPlaylists()}, 5000);
     }
 /*    testPromise() {
         let newRes = spotifyApi.getUserPlaylists({offset: offset, limit: 50});
@@ -293,8 +303,9 @@ getTracks(playlistId) {
         <Login loggedIn={this.state.loggedIn}/>
         <div className={(this.state.loggedIn) ? 'homepage display-fullScreen' : 'homepage display-none'}> 
             <Navbar />
-            <Playlists loggedIn={this.state.loggedIn} playlists={this.state.playlists} active = {(this.state.playlists.length > 0 ? true : false)}/>
+            <Playlists loggedIn={this.state.loggedIn} playlists={this.state.playlists} active = {(this.state.playlists.length > 0 ? true : false)} createPlaylists={this.createPlaylists}/>
         </div>
+        <Details />
         <div className='temporaryNav'>
             <button onClick={this.getUserPlaylists}>Get Playlists</button><br/>
             <button onClick={this.getUserPlaylistsConsumePromise}>Get Playlists Promise</button><br/>
@@ -353,12 +364,21 @@ class Playlists extends React.Component {
         this.addPlaylistToLibrary = this.addPlaylistToLibrary.bind(this);
         this.updateSelectedPlaylist = this.updateSelectedPlaylist.bind(this);
     }
+     componentDidMount() {
+        spotifyApi.getMe().then((res) => {
+            this.setState({name: res.display_name, userId: res.id});
+        });
+    }
+/*    componentWillReceiveProps(nextProps) {
+        this.setState({playlists: nextProps.playlists});  
+    }*/
     addPlaylistToLibrary() {
-        const selectedPlaylistName = this.state.selectedPlaylistName;
+        const selectedPlaylistName = (this.state.selectedPlaylistName === '') ? 'Summer 2019' : this.state.selectedPlaylistName;
         const playlist = this.props.playlists.filter(playlist => playlist.name === selectedPlaylistName);
         console.log(playlist);
         const songURIs = playlist[0].songs.map(song => song.track.uri);
         const userId = this.state.userId;
+        console.log(userId);
         
         // Create the playlist 
         spotifyApi.createPlaylist(userId, {name: selectedPlaylistName})
@@ -373,9 +393,6 @@ class Playlists extends React.Component {
         });
     }
     /* REmove this and pass it down as props from App class */
-    componentDidMount() {
-        spotifyApi.getMe().then((res) => this.setState({userId: res.id}));
-    }
     updateSelectedPlaylist(value) {
         this.setState({selectedPlaylistName: value});
     }
@@ -389,7 +406,7 @@ class Playlists extends React.Component {
                 <div className={ (this.props.active) ? 'Login-container display-none' : 'Login-container'}>
                     <h1>Smarter Playlists</h1>
                     <div style={{'maxWidth': '60vw'}}>This app retrieves all the songs in your playlists and saved tracks.  It then sorts them into 3-month aggregate playlists. Now you always have a playlist of all your new music!</div>
-                    <div className='Login-button'>Create smart playlists</div>
+                    <div className='Login-button' onClick={this.props.createPlaylists}>Create smart playlists</div>
                 </div>
                 <div className= {(this.props.active) ? 'addPlaylistButton' : 'addPlaylistButton display-none'} onClick={this.addPlaylistToLibrary}>Add playlist to library</div>
                 <TabContainer>
@@ -421,6 +438,38 @@ const Song = (props) => {
                 <li className='.li-added_at'>{utcTimeToHumanReadable(props.added_at)}</li>
                 <li className='.li-duration'>{msToTime(props.duration)}</li>
             </ul>
+        </div>
+    );
+}
+
+const Details = () => {
+    return (
+        <div className='detailsBackgroundContainer'>
+            <div className='detailsContentContainer'>
+                <Row className='details'>
+                    <Col xs={12}><h1>Why use Smart Playlists?</h1></Col>
+                    <Col xs={3} className='col-3-image'>
+                        <div className='circularImageContainer'><MdColorWand fontSize="64px" color='#fca641'/></div>
+                        <h3>Convenient</h3>
+                        <p>Get a playlist of your new music every 3 months with just one click.</p>
+                    </Col>
+                    <Col xs={3} className='col-3-image'>
+                        <div className='circularImageContainer'><MdMusicalNotes fontSize="64px" color='#ff4632'/></div>
+                        <h3>Genres</h3>
+                        <p>Add songs to your genre-based playlists and watch them appear in your smart playlists.</p>
+                    </Col>
+                    <Col xs={3} className='col-3-image'>
+                        <div className='circularImageContainer'><MdRewind fontSize="64px" color='#fca641'/></div>
+                        <h3>Rewind</h3>
+                        <p>Smart playlists uses your entire music library. Listen to some throwbacks!</p>
+                    </Col>
+                    <Col xs={3} className='col-3-image'>
+                        <div className='circularImageContainer'><MdAdd fontSize="64px" color='#ff4632'/></div>
+                        <h3>Saved Tracks</h3>
+                        <p>Add songs to your saved tracks and watch them appear in your smart playlists.</p>
+                    </Col>
+                </Row>
+            </div>
         </div>
     );
 }

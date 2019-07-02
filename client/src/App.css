@@ -9,6 +9,9 @@
     --light-green: #1ED760;
     --songs-text: black;
     --songs-background: white;
+    --base-red: #ff4632;
+    --light-red: #ff5d4c;
+    --warm-orange: #fca641;
 }
 
 /* =============================================================== */
@@ -74,16 +77,18 @@ a:visited {
     margin: 20px;
     padding: 15px 45px;
     border-radius: 30px;
-    background: var(--base-green);
+    background: var(--base-red);
     font-size: 20px;
     font-weight: 500;
     letter-spacing: 2px;
-    transition: all .3s;
+    transition: transform 33ms;
 }
 
 .Login-button:hover {
-    background: var(--light-green);
+    background: var(--light-red);
     color: white;
+    cursor: pointer;
+    transform: scale(1.05);
 }
 
 .Login a {
@@ -127,7 +132,10 @@ a:visited {
 }
 
 .Navbar ul li a:hover {
-    color: #2D46B9;
+/*
+    color: #2D46B9;  
+*/
+    color: white;
     text-decoration: none;
 }
 
@@ -135,10 +143,8 @@ a:visited {
 /* =============================================================== */
 /*                      Home Page Component                        */
 /* =============================================================== */
-.homepage {
-    background: url(https://campaigns.scdn.co/images/top-hero-left.png) left bottom no-repeat,
-                url(https://campaigns.scdn.co/images/top-hero-right.png) right bottom no-repeat,
-                rgb(80, 55, 80);    margin: 0;
+.homepage {    
+    margin: 0;
     padding: 0;
     height: 100vh;
     width: 100vw;
@@ -234,6 +240,84 @@ a:visited {
 }
 
 
+/* =============================================================== */
+/*                      Details Component                          */
+/* =============================================================== */
+.detailsBackgroundContainer {
+    background: #F9F9F9;
+}
+
+.detailsContentContainer {
+    padding: 75px 15px 15px 15px;
+    margin-left: 86px;
+    margin-right: 86px;
+}
+.details {
+    color: black;
+}
+
+.details h1 {
+    font-weight: 900;
+    letter-spacing: -1px;
+    margin-bottom: 70px;
+}
+
+.circularImageContainer {
+    background: rgb(80, 55, 80);
+    height: 120px;
+    width: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.col-3-image {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.col-3-image h3 {
+    margin-top: 32px;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.col-3-image p {
+    margin-top: 6px;
+    padding: 0px 40px;
+    font-size: 16px; 
+    line-height: 1.5;
+}
+
+
+/* =============================================================== */
+/*                      Media Queries                              */
+/* =============================================================== */
+@media (min-width: 480px) {
+    .homepage {
+        background: rgb(80, 55, 80);
+    }
+}
+
+@media (min-width: 768px) {
+    h1 {
+        font-size: 40px;
+    }
+}
+
+@media (min-width: 992px) {
+    h1 {
+        font-size: 48px;
+    }
+    
+    .homepage {
+        background: url(https://campaigns.scdn.co/images/top-hero-left.png) left bottom no-repeat,
+                url(https://campaigns.scdn.co/images/top-hero-right.png) right bottom no-repeat,
+                rgb(80, 55, 80);
+    }
+}
 
 
 
