@@ -4,11 +4,12 @@ import './App.css'; // import this second so it overwrites some bootstrap defaul
 import SpotifyWebApi from 'spotify-web-api-js';
 import {Row, Col, Tab, Tabs, TabContainer} from 'react-bootstrap';
 import { ReactComponent as LogoSvg } from './logo1.svg';
-import LogoNodejs from 'react-ionicons/lib/LogoNodejs';
 import MdMusicalNotes from 'react-ionicons/lib/MdMusicalNotes';
 import MdRewind from 'react-ionicons/lib/MdRewind';
 import MdColorWand from 'react-ionicons/lib/MdColorWand';
 import MdAdd from 'react-ionicons/lib/MdAdd';
+import MdClock from 'react-ionicons/lib/MdClock';
+import IosRefresh from 'react-ionicons/lib/IosRefresh';
 const spotifyApi = new SpotifyWebApi();
 
 
@@ -41,7 +42,6 @@ class App extends React.Component {
   constructor() {
       super();
       const params = this.getHashParams();
-      console.log(params);
       const token = params.access_token;
       if (token) {
           spotifyApi.setAccessToken(token);
@@ -53,6 +53,7 @@ class App extends React.Component {
           playlistIds: '',
           songs: [],
           playlists: [],
+          createPlaylistsFunctionCalled: false
       }
       this.getUserPlaylists = this.getUserPlaylists.bind(this);
       this.getUserSavedTracks = this.getUserSavedTracks.bind(this);
@@ -67,6 +68,7 @@ class App extends React.Component {
     componentDidMount() {
         spotifyApi.getMe().then((res) => {
             this.setState({name: res.display_name, userId: res.id});
+            // If already logged in then get the user's songs and saved tracks on component mount
             if (this.state.loggedIn) {
                 this.getAllPlaylistsOnComponentMount();
             }
@@ -93,9 +95,7 @@ class App extends React.Component {
                 let playlistIds = [];
                 do {
                     newRes = await spotifyApi.getUserPlaylists({offset: offset, limit: 50});
-                    console.log(newRes);
                     offset += 50;
-                    console.log(newRes);
                     ids = newRes.items.filter(playlist => playlist.owner.display_name === userName).map(playlist => { return {id: playlist.id, length: playlist.tracks.total}});
                     playlistIds = [...playlistIds, ...ids];
                 } while(newRes.next);
@@ -110,7 +110,9 @@ class App extends React.Component {
         try {
             let offset = 0;
             let newRes;
+/*
             let songs = [];
+*/
             do {
                 newRes = await spotifyApi.getPlaylistTracks(playlistId, {offset: offset});
                 offset += 100;
@@ -224,31 +226,32 @@ class App extends React.Component {
     createPlaylists() {
         // If not token then redirect to login screen
         if (!this.state.loggedIn) window.location.replace('http://localhost:3000');
-        let playlists = this.createResponseObject(this.state.songs[0].added_at,
-                                                  this.state.songs[this.state.songs.length - 1].added_at);
-        const songs = this.state.songs; 
-        songs.forEach(song => {
-            const songDate = new Date(song.added_at);
-            const [songYear, songMonth] = [songDate.getFullYear(), songDate.getUTCMonth()];
-            
-            playlists.forEach(playlist => {
-                if (songYear === playlist.year && playlist.months.includes(songMonth)) {
-                    playlist.songs.push(song);
-                }
+        if (this.state.createPlaylistsFunctionCalled === true) return; 
+        this.setState({createPlaylistsFunctionCalled: true});
+        // Remove this once I get response headers working
+        setTimeout(() => {
+            let playlists = this.createResponseObject(this.state.songs[0].added_at,
+                                                      this.state.songs[this.state.songs.length - 1].added_at);
+            const songs = this.state.songs; 
+            songs.forEach(song => {
+                const songDate = new Date(song.added_at);
+                const [songYear, songMonth] = [songDate.getFullYear(), songDate.getUTCMonth()];
+
+                playlists.forEach(playlist => {
+                    if (songYear === playlist.year && playlist.months.includes(songMonth)) {
+                        playlist.songs.push(song);
+                    }
+                });
             });
-        });
-        
-        // Filter out zero length playlists and remove duplicate songs
-        playlists = playlists.filter(playlist => playlist.songs.length > 0);
-        playlists.forEach(playlist => {
-            playlist.songs = removeDuplicates(playlist.songs, 'track', 'uri');
-        });
-        
-        this.setState({playlists: playlists});
-        // Save to localStorage
-        const playlistNames = playlists.map(playlist => playlist.name);
-        localStorage.setItem('playlistNames', JSON.stringify(playlistNames));
-        localStorage.setItem("Summer19", JSON.stringify(playlists[1]));
+
+            // Filter out zero length playlists and remove duplicate songs
+            playlists = playlists.filter(playlist => playlist.songs.length > 0);
+            playlists.forEach(playlist => {
+                playlist.songs = removeDuplicates(playlist.songs, 'track', 'uri');
+            });
+
+            this.setState({playlists: playlists});
+        }, 3000);
     }
 /*    getTracks() {
         // probably need playlist length BEFORE if that's possible
@@ -288,7 +291,7 @@ getTracks(playlistId) {
         // leaving this here so i can demonstrate how the app works 
         this.getUserPlaylists();
         this.getUserSavedTracks();
-        setTimeout(() => {this.getTracks()}, 2000);
+        setTimeout(() => {this.getTracks()}, 500);
         setTimeout(() => {this.sortSongsByDate()}, 3500);
         //setTimeout(() => {this.createPlaylists()}, 5000);
     }
@@ -299,25 +302,13 @@ getTracks(playlistId) {
     }*/
   render() {
     return (
-      <div className="App">
+      <div className="app">
         <Login loggedIn={this.state.loggedIn}/>
-        <div className={(this.state.loggedIn) ? 'homepage display-fullScreen' : 'homepage display-none'}> 
+        <div className={(this.state.loggedIn) ? 'homepage display-full-screen' : 'homepage display-none'}> 
             <Navbar />
-            <Playlists loggedIn={this.state.loggedIn} playlists={this.state.playlists} active = {(this.state.playlists.length > 0 ? true : false)} createPlaylists={this.createPlaylists}/>
+            <Playlists loggedIn={this.state.loggedIn} playlists={this.state.playlists} active = {(this.state.playlists.length > 0 ? true : false)} createPlaylists={this.createPlaylists} createPlaylistsFunctionCalled={this.state.createPlaylistsFunctionCalled}/>
         </div>
-        <Details />
-        <div className='temporaryNav'>
-            <button onClick={this.getUserPlaylists}>Get Playlists</button><br/>
-            <button onClick={this.getUserPlaylistsConsumePromise}>Get Playlists Promise</button><br/>
-            <button onClick={this.getTracks}>Get Tracks</button><br/>
-            <button onClick={this.testPromise}>testPromise</button><br/>
-            <button onClick={this.getPlayListSongsByQuery}>Get Tracks Manual Queries</button><br/>
-            <button onClick={this.getUserSavedTracks}>Get Saved Tracks</button><br/>
-            <button onClick={this.sortSongsByDate}>Sort Songs</button><br/>
-            <button onClick={this.logState}>Log State</button><br/>
-            <button onClick={this.createPlaylists}>Create playlists</button><br/>
-            <button onClick={this.getAllPlaylistsOnComponentMount}>getAllPlaylistsOnComponentMount</button><br/>
-        </div>
+        <Details loggedIn={this.state.loggedIn}/>
     </div>
     );
   }
@@ -326,12 +317,12 @@ getTracks(playlistId) {
 // Pass App.state.loggedIn in as props.  Then the component will render based off whether it's true / false
 const Login = (props) => {
     return (
-        <div className={props.loggedIn ? "Login display-none" : "Login display-fullScreen"}>
+        <div className={props.loggedIn ? "login display-none" : "login display-600px"}>
             <Navbar />
-            <div className='Login-container'>
+            <div className='login-container'>
             <h1>Smarter Playlists</h1>
             <div style={{'maxWidth': '40vw'}}>Welcome to smart playlists - the app that aggregates your music into periodical playlists so you don't have to!</div>
-            <a className='Login-button' href='http://localhost:8888/login' >Login with Spotify </a>
+            <a className='button-default button-red button-login' href='http://localhost:8888/login' >Login with Spotify </a>
             </div>
         </div>
         );
@@ -339,7 +330,7 @@ const Login = (props) => {
 
 const Navbar = () => {
     return(
-        <div className='Navbar'>
+        <div className='navbar'>
             <ul>
                 <li><a href="http://github.com/dmullen17" target="_blank">Github</a></li>
                 <li><a href="https://www.linkedin.com/in/dominic-mullen-a84a2452/" target="_blank">LinkedIn</a></li>
@@ -375,10 +366,12 @@ class Playlists extends React.Component {
     addPlaylistToLibrary() {
         const selectedPlaylistName = (this.state.selectedPlaylistName === '') ? 'Summer 2019' : this.state.selectedPlaylistName;
         const playlist = this.props.playlists.filter(playlist => playlist.name === selectedPlaylistName);
-        console.log(playlist);
-        const songURIs = playlist[0].songs.map(song => song.track.uri);
+        const songURIs = playlist[0].songs.map(song => song.track.uri)
+            .filter(uri => {
+                const regex = new RegExp('spotify:local');
+                return !regex.test(uri);
+            });
         const userId = this.state.userId;
-        console.log(userId);
         
         // Create the playlist 
         spotifyApi.createPlaylist(userId, {name: selectedPlaylistName})
@@ -402,15 +395,16 @@ class Playlists extends React.Component {
         playlistTabs = <Tab title={playlist.name} eventKey={playlist.name}><Playlist songs={playlist.songs}/></Tab>*/
         playlistTabs = this.props.playlists.map(playlist => <Tab title={playlist.name} eventKey={playlist.name}><Playlist songs={playlist.songs}/></Tab>);
         return (
-            <div className='createPlaylistsContainer'>
-                <div className={ (this.props.active) ? 'Login-container display-none' : 'Login-container'}>
+            <div className='create-playlists-container'>
+                <div className={ (this.props.active) ? 'login-container display-none' : 'login-container'}>
                     <h1>Smarter Playlists</h1>
                     <div style={{'maxWidth': '60vw'}}>This app retrieves all the songs in your playlists and saved tracks.  It then sorts them into 3-month aggregate playlists. Now you always have a playlist of all your new music!</div>
-                    <div className='Login-button' onClick={this.props.createPlaylists}>Create smart playlists</div>
+                    <div className='button-default button-green' onClick={this.props.createPlaylists}>Create smart playlists</div>
                 </div>
-                <div className= {(this.props.active) ? 'addPlaylistButton' : 'addPlaylistButton display-none'} onClick={this.addPlaylistToLibrary}>Add playlist to library</div>
+                <div className= {(this.props.active) ? 'button-default button-green button-add-playist' : 'button-default button-green button-add-playist display-none'} onClick={this.addPlaylistToLibrary}>Add playlist to library</div>
+                <IosRefresh style={this.props.createPlaylistsFunctionCalled ? (this.props.active ? {display: 'none'} : {display: 'inline'}) : {display: 'none'} } fontSize="200px" color="#347eff" rotate={true} />
                 <TabContainer>
-                    <Tabs className='playLists' onSelect={this.updateSelectedPlaylist}>
+                    <Tabs className='playlists' onSelect={this.updateSelectedPlaylist}>
                         {playlistTabs}
                     </Tabs>
                 </TabContainer>
@@ -423,6 +417,13 @@ const Playlist = (props) => {
     const songList = props.songs.map(song => <li><Song name={song.track.name} artist={song.track.artists[0].name} album={song.track.album.name} added_at={song.added_at} duration={song.track.duration_ms}/></li>);
     return (
         <ul className='playlist'>
+            <ul className='songs-ul-container'>
+                <li>SONG</li>
+                <li>ARTIST</li>
+                <li>ALBUM</li>
+                <li>DATE</li>
+                <li><MdClock color='white' fontSize='18px'/></li>
+            </ul>
             {songList}
         </ul>
     );
@@ -431,7 +432,7 @@ const Playlist = (props) => {
 const Song = (props) => {
     return (
         <div>
-            <ul className='songsUlContainer'>
+            <ul className='songs-ul-container'>
                 <li className='name'>{props.name}</li>
                 <li className='.li-artist'>{props.artist}</li>
                 <li className='.li-album'>{props.album}</li>
@@ -442,29 +443,29 @@ const Song = (props) => {
     );
 }
 
-const Details = () => {
+const Details = (props) => {
     return (
-        <div className='detailsBackgroundContainer'>
-            <div className='detailsContentContainer'>
+        <div className={(props.loggedIn) ? 'details-background-container display-none' : 'details-background-container'}>
+            <div className='details-content-container'>
                 <Row className='details'>
                     <Col xs={12}><h1>Why use Smart Playlists?</h1></Col>
                     <Col xs={3} className='col-3-image'>
-                        <div className='circularImageContainer'><MdColorWand fontSize="64px" color='#fca641'/></div>
+                        <div className='details-image-container'><MdColorWand fontSize="64px" color='#fca641'/></div>
                         <h3>Convenient</h3>
                         <p>Get a playlist of your new music every 3 months with just one click.</p>
                     </Col>
                     <Col xs={3} className='col-3-image'>
-                        <div className='circularImageContainer'><MdMusicalNotes fontSize="64px" color='#ff4632'/></div>
+                        <div className='details-image-container'><MdMusicalNotes fontSize="64px" color='#ff4632'/></div>
                         <h3>Genres</h3>
                         <p>Add songs to your genre-based playlists and watch them appear in your smart playlists.</p>
                     </Col>
                     <Col xs={3} className='col-3-image'>
-                        <div className='circularImageContainer'><MdRewind fontSize="64px" color='#fca641'/></div>
+                        <div className='details-image-container'><MdRewind fontSize="64px" color='#fca641'/></div>
                         <h3>Rewind</h3>
                         <p>Smart playlists uses your entire music library. Listen to some throwbacks!</p>
                     </Col>
                     <Col xs={3} className='col-3-image'>
-                        <div className='circularImageContainer'><MdAdd fontSize="64px" color='#ff4632'/></div>
+                        <div className='details-image-container'><MdAdd fontSize="64px" color='#ff4632'/></div>
                         <h3>Saved Tracks</h3>
                         <p>Add songs to your saved tracks and watch them appear in your smart playlists.</p>
                     </Col>
@@ -476,6 +477,21 @@ const Details = () => {
 
 export default App;
 
+
+
+
+/*        <div className='temporaryNav'>
+            <button onClick={this.getUserPlaylists}>Get Playlists</button><br/>
+            <button onClick={this.getUserPlaylistsConsumePromise}>Get Playlists Promise</button><br/>
+            <button onClick={this.getTracks}>Get Tracks</button><br/>
+            <button onClick={this.testPromise}>testPromise</button><br/>
+            <button onClick={this.getPlayListSongsByQuery}>Get Tracks Manual Queries</button><br/>
+            <button onClick={this.getUserSavedTracks}>Get Saved Tracks</button><br/>
+            <button onClick={this.sortSongsByDate}>Sort Songs</button><br/>
+            <button onClick={this.logState}>Log State</button><br/>
+            <button onClick={this.createPlaylists}>Create playlists</button><br/>
+            <button onClick={this.getAllPlaylistsOnComponentMount}>getAllPlaylistsOnComponentMount</button><br/>
+        </div>*/
 
 
 /*

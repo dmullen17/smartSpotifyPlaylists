@@ -7,8 +7,8 @@
     --light-grey: #dee2e6;
     --base-green: #1DB94E;
     --light-green: #1ED760;
-    --songs-text: black;
-    --songs-background: white;
+    --songs-text: white;
+    --songs-background: rgba(0, 0, 0, .3);
     --base-red: #ff4632;
     --light-red: #ff5d4c;
     --warm-orange: #fca641;
@@ -46,9 +46,34 @@ a:visited {
 }
 
 /* =============================================================== */
+/*                      Buttons                                    */
+/* =============================================================== */
+
+.button-default {
+    margin: 20px;
+    padding: 15px 45px;
+    border-radius: 30px;
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    transition: transform 33ms;
+}
+
+.button-default:hover {
+    color: white;
+    cursor: pointer;
+    transform: scale(1.05);
+}
+
+.button-red {background-color: var(--base-red);}
+.button-red:hover {background-color: var(--light-red);}
+.button-green {background-color: var(--base-green);}
+.button-green:hover {background-color: var(--light-green);}
+
+/* =============================================================== */
 /*                      Main App Component                         */
 /* =============================================================== */
-.App {
+.app {
   text-align: center;
 }
 
@@ -56,7 +81,7 @@ a:visited {
 /* =============================================================== */
 /*                      Login Component                            */
 /* =============================================================== */
-.Login {
+.login {
     background: url(https://campaigns.scdn.co/images/top-hero-left.png) left bottom no-repeat,
                 url(https://campaigns.scdn.co/images/top-hero-right.png) right bottom no-repeat,
                 rgb(80, 55, 80);
@@ -64,7 +89,7 @@ a:visited {
     padding: 0;
 }
 
-.Login-container {
+.login-container {
     margin-top: 10vh;
     display: flex;
     align-items: center;
@@ -73,37 +98,28 @@ a:visited {
     font-weight: 500;
 }
 
-.Login-button {
-    margin: 20px;
-    padding: 15px 45px;
-    border-radius: 30px;
-    background: var(--base-red);
-    font-size: 20px;
-    font-weight: 500;
-    letter-spacing: 2px;
-    transition: transform 33ms;
+.button-login {
+    margin-top: 35px;
 }
 
-.Login-button:hover {
-    background: var(--light-red);
-    color: white;
-    cursor: pointer;
-    transform: scale(1.05);
-}
-
-.Login a {
+.login a {
     text-decoration: none;
 }
 
-.Login h1 {
-    margin: 0;
+.login h1 {
+    margin-bottom: 15px;
 }
 
 .display-none {
     display: none;
 }
 
-.display-fullScreen {
+.display-full-screen {
+    height: 100vh;
+    width: 100vw;
+}
+
+.display-600px {
     height: 600px;
     width: 100vw;
 }
@@ -112,26 +128,26 @@ a:visited {
 /* =============================================================== */
 /*                      Navigation Bar Component                   */
 /* =============================================================== */
-.Navbar {
+.navbar {
     width: 100%;
     font-weight: bold;
     font-size: 20px;
 }
 
-.Navbar ul {
+.navbar ul {
     list-style-type: none;
     margin: 0;
     padding: 30px;
     overflow: hidden;
 }
 
-.Navbar ul li {
+.navbar ul li {
     padding: 15px;
     float: left;
     margin: 0;
 }
 
-.Navbar ul li a:hover {
+.navbar ul li a:hover {
 /*
     color: #2D46B9;  
 */
@@ -144,6 +160,7 @@ a:visited {
 /*                      Home Page Component                        */
 /* =============================================================== */
 .homepage {    
+    background: linear-gradient(to top, #373b44, #4286f4);
     margin: 0;
     padding: 0;
     height: 100vh;
@@ -152,17 +169,16 @@ a:visited {
 }
 
 /* Delete this when finished developing */
-.temporaryNav {
+.temporary-nav {
     display: flex;
     flex-direction: row;
     height: 20vh;
 }
 
-
 /* =============================================================== */
 /*          Playlists, Playlist, and Songs Components              */
 /* =============================================================== */
-.playlistsContainer {
+.playlists-container {
     margin-right: 7.5vw;
     margin-left: 7.5vw;
     position: absolute;
@@ -171,84 +187,86 @@ a:visited {
     left: 0;
 }
 
-.playLists {
+.playlists {
     overflow-x: scroll;
     flex-wrap: nowrap;
+}
+
+.playlists *:active {
+    background: var(--songs-background);
 }
 
 /* ul container for <Songs> elements*/
 .playlist {
     list-style-type: none;
     overflow-y: scroll;
-    max-height: 63vh;
-    min-height: 63vh;
+    max-height: 60vh;
+    min-height: 60vh;
     padding: 0;
     margin: 0;
     background: var(--songs-background);
-    border-right: 1px solid var(--light-grey);
-    border-left: 1px solid var(--light-grey);
+/*    border-right: 1px solid var(--light-grey);
+    border-left: 1px solid var(--light-grey);*/
 }
 
-.songsUlContainer {
+.songs-ul-container {
     list-style-type: none;  
     padding: 0;
     white-space: nowrap;
     text-align: left;
 }
 
-.songsUlContainer li {
+.songs-ul-container li {
     display: inline-block;
     padding: 5px;
     padding-left: 10px;
     padding-right: 8px;
     color: var(--songs-text);
+/*
     border-bottom: 1px solid var(--light-grey);
+*/
     overflow-x: hidden;
 }
 
-.songsUlContainer li:first-child {width: 33%;}
-.songsUlContainer li:nth-child(2) {width: 20%;}
-.songsUlContainer li:nth-child(3) {width: 20%;}
-.songsUlContainer li:nth-child(4) {width: 17%;}
-.songsUlContainer li:nth-child(5) {width: 10%;}
+.songs-ul-container li:first-child {width: 33%;}
+.songs-ul-container li:nth-child(2) {width: 20%;}
+.songs-ul-container li:nth-child(3) {width: 20%;}
+.songs-ul-container li:nth-child(4) {width: 17%;}
+.songs-ul-container li:nth-child(5) {width: 10%;}
 
-
-.addPlaylistButton {
-    margin: 20px;
+.button-add-playist {
     margin-bottom: 50px;   
     padding: 15px 30px;
-    border-radius: 30px;
-    background: var(--base-green);
-    font-size: 20px;
-    font-weight: 500;
-    letter-spacing: 2px;
-    transition: all .3s;
     max-width: 325px;
 }
 
-.addPlaylistButton:hover {
-    background: var(--light-green);
-    color: white;
-    cursor: pointer;
-}
-
-
-.createPlaylistsContainer {
+.create-playlists-container {
     margin-right: 7.5vw;
     margin-left: 7.5vw;
     height: 60vh;
+}
+
+/* Overwrite some Bootstrap classes*/
+.nav-tabs {
+    border-bottom: 0px;
+}
+
+.nav-item.nav-link.active {
+    background-color: var(--songs-background);
+    color: white;
+    border: 0px;
 }
 
 
 /* =============================================================== */
 /*                      Details Component                          */
 /* =============================================================== */
-.detailsBackgroundContainer {
+.details-background-container {
     background: #F9F9F9;
 }
 
-.detailsContentContainer {
-    padding: 75px 15px 15px 15px;
+.details-content-container {
+    padding: 75px 15px;
     margin-left: 86px;
     margin-right: 86px;
 }
@@ -262,7 +280,13 @@ a:visited {
     margin-bottom: 70px;
 }
 
-.circularImageContainer {
+.details p {
+    color: #222326;
+    font-weight: 500;
+    font-family: Roboto;
+}
+
+.details-image-container {
     background: rgb(80, 55, 80);
     height: 120px;
     width: 120px;
@@ -272,7 +296,7 @@ a:visited {
     justify-content: center;
 }
 
-.col-3-image {
+.col-3-image {  
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -296,7 +320,7 @@ a:visited {
 /*                      Media Queries                              */
 /* =============================================================== */
 @media (min-width: 480px) {
-    .homepage {
+    .login {
         background: rgb(80, 55, 80);
     }
 }
@@ -311,8 +335,7 @@ a:visited {
     h1 {
         font-size: 48px;
     }
-    
-    .homepage {
+    .login {
         background: url(https://campaigns.scdn.co/images/top-hero-left.png) left bottom no-repeat,
                 url(https://campaigns.scdn.co/images/top-hero-right.png) right bottom no-repeat,
                 rgb(80, 55, 80);
